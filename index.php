@@ -1,6 +1,6 @@
 <?php
     // Composerでインストールしたライブラリを一括読み込み
-    require_once __DIR__ . 'autoload.php';
+    require_once __DIR__ . '/composer/autoload_real.php';
 
     // POSTメソッドで渡される値を取得、表示
     $inputString = file_get_contents('php://input');
