@@ -1,29 +1,33 @@
 <?php
-    // Composerでインストールしたライブラリを一括読み込み
-    require_once __DIR__ . '/composer/autoload_real.php';
+DEFINE("ACCESS_TOKEN","1rfZ2hLxAy1Pj0aS+SuznqGY9KtmsQYV6CmiOEypwZ4H5Uhw2SKCYzxj3bM51AJx0N6l9Id9qABRb+P/uH04ZwNQBEnUDAN0QV66LchjTKaCa+5xFFQLPzGfneBC00YHLZqw70OHri8+1Dj2HymCdQdB04t89/1O/w1cDnyilFU=");
+DEFINE("SECRET_TOKEN","a419d853638ebb1b541d0647ed3658bc");
 
-    // POSTメソッドで渡される値を取得、表示
-    $inputString = file_get_contents('php://input');
+use \LINE\LINEBot\HTTPClient\CurlHTTPClient;
+use \LINE\LINEBot;
+use LINE\LINEBot\MessageBuilder\TextMessageBuilder;
+use LINE\LINEBot\MessageBuilder\MultiMessageBuilder;
+use \LINE\LINEBot\Constant\HTTPHeader;
 
-/*
-    // アクセストークンを使いCurlHTTPClientをインスタンス化
-    $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient('Channel Access Token');
+//LINESDKの読み込み
+require_once(__DIR__."/vendor/autoload.php");
 
-    //CurlHTTPClientとシークレットを使いLINEBotをインスタンス化
-    $bot = new \LINE\LINEBot($httpClient, ['channelSecret' => 'Channel Secret']);
+//LINEから送られてきたらtrueになる
+if(isset($_SERVER["HTTP_".HTTPHeader::LINE_SIGNATURE])){
 
-    // LINE Messaging APIがリクエストに付与した署名を取得
-    $signature = $_SERVER["HTTP_" . \LINE\LINEBot\Constant\HTTPHeader::LINE_SIGNATURE];
+//LINEBOTにPOSTで送られてきた生データの取得
+  $inputData = file_get_contents("php://input");
 
-    //署名をチェックし、正当であればリクエストをパースし配列へ、不正であれば例外処理
-    $events = $bot->parseEventRequest(file_get_contents('php://input'), $signature);
+//LINEBOTSDKの設定
+  $httpClient = new CurlHTTPClient(ACCESS_TOKEN);
+  $Bot = new LINEBot($HttpClient, ['channelSecret' => SECRET_TOKEN]);
+  $signature = $_SERVER["HTTP_".HTTPHeader::LINE_SIGNATURE]; 
+  $Events = $Bot->parseEventRequest($InputData, $Signature);
 
-    foreach ($events as $event) {
-        // メッセージを返信
-        $response = $bot->replyMessage(
-            $event->getReplyToken(), new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($event->getText())  
-        );
-    }
-*/
-
-?>
+//大量にメッセージが送られると複数分のデータが同時に送られてくるため、foreachをしている。
+　　　　foreach($Events as $event){
+    $SendMessage = new MultiMessageBuilder();
+    $TextMessageBuilder = new TextMessageBuilder("よろぽん！");
+    $SendMessage->add($TextMessageBuilder);
+    $Bot->replyMessage($event->getReplyToken(), $SendMessage);
+  }
+}
